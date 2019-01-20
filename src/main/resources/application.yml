@@ -1,0 +1,103 @@
+server:
+  port: 8080
+  tomcat:
+    uri-encoding: UTF-8
+    accesslog:
+      directory: d:/
+      enabled: true
+spring: 
+  messages:
+    encoding: UTF-8
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+      enabled: true
+  mvc:
+    view:
+      prefix: /WEB-INF/views/
+      suffix: .jsp
+  servlet:
+    multipart:
+      location: /home/
+  resources:
+    static-locations:
+    - file:${spring.servlet.multipart.location}
+    - classpath:/META-INF/resources/
+    - classpath:/resources/
+    - classpath:/static/
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/mydb?useUnicode=true&characterEncoding=utf8&autoReconnect=true&allowMultiQueries=true&useSSL=true
+    username: root
+    password: root
+    type: com.alibaba.druid.pool.DruidDataSource
+  application:
+    name: brine-sites
+  jackson:
+    date-format: yyyy-MM-dd HH:mm
+#连接池的配置信息
+## 初始化大小，最小，最大
+  druid:
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+## 配置获取连接等待超时的时间
+    maxWait: 60000
+# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    timeBetweenEvictionRunsMillis: 60000
+# 配置一个连接在池中最小生存的时间，单位是毫秒
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    maxPoolPreparedStatementPerConnectionSize: 20
+
+# 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+  jpa:
+      generate-ddl: false
+      show-sql: true   
+      hibernate:
+        ddl-auto: none
+      application:
+        name: brine-sites
+
+logging:
+  path: d:/
+  level:
+    com.yhm.sys: DEBUG
+    root: info
+    org.hibernate: info
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.type.descriptor.sql.BasicExtractor: trace
+    org.itmuch: debug
+# 自定义属性FileUpload用
+#eureka:
+#  client:
+#    healthcheck:
+#      enabled: true
+#    serviceUrl:
+#      defaultZone: http://user:123456@localhost:8761/eureka
+#  instance:
+#    ip-address: true
+#    instance-id: ${spring.application.name}:${spring.cloud.client.ipAddress}:${spring.application.instance_id:${server.port}}
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+  global-config:
+    db-config:
+      table-underline: true
+  mapper-locations: classpath*:/mapper/sys/*Mapper.xml
+  type-aliases-package: com.brine.sys.entity
+
+wx:
+  mp:
+    configs:
+      appId: 1111
+      secret: 1111
+      token: 111
+      aesKey: 111
+
