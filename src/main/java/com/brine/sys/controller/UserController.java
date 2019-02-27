@@ -70,38 +70,22 @@ public class UserController {
 
         if (atuser == null) {
             //记录账户密码输入的错误次数
-            if(code>=0){
-                code+=1;
-            }
-            CookieUtils.setCookie(response,user.getAccount()+Constants.VERIF_CODE,String.valueOf(code),0);
-            JedisUtil.setJson(ip+user.getAccount(),String.valueOf(code),60);
+            recordCode(response,code,user.getAccount(),ip);
             throw new CustomUnauthorizedException("该帐号不存在(The account does not exist.)");
             //return new ResultVO<Object>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "该帐号不存在(The account does not exist.)", null);
         }
-        String pwd = AesCipherUtil.enCrypto(user.getAccount()+user.getPassword());
-        // 密码进行AES解密
-//        String key = AesCipherUtil.deCrypto(atuser.getPassword());
-        // 因为密码加密是以帐号+密码的形式进行加密的，所以解密后的对比是帐号+密码
-//        if (!key.equals(user.getAccount() + user.getPassword())) {
+
         try {
+            String pwd = AesCipherUtil.enCrypto(user.getAccount()+user.getPassword());
             boolean success  = Pbkdf2Utils.verifyPassword(pwd,atuser.getPassword());
             if(!success){
                 //记录账户密码输入的错误次数
-                if(code>=0){
-                    code+=1;
-                }
-                CookieUtils.setCookie(response,user.getAccount()+Constants.VERIF_CODE,String.valueOf(code),0);
-                JedisUtil.setJson(ip+user.getAccount(),String.valueOf(code),60);
+                recordCode(response,code,user.getAccount(),ip);
                 throw new CustomUnauthorizedException("帐号或密码错误(Account or Password Error.)");
-                //return new ResultVO<Object>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "帐号或密码错误(Account or Password Error.)", null);
             }
         } catch (Exception e) {
             //记录账户密码输入的错误次数
-            if(code>=0){
-                code+=1;
-            }
-            CookieUtils.setCookie(response,user.getAccount()+Constants.VERIF_CODE,String.valueOf(code),0);
-            JedisUtil.setJson(ip+user.getAccount(),String.valueOf(code),60);
+            recordCode(response,code,user.getAccount(),ip);
             throw new CustomUnauthorizedException("帐号或密码错误(Account or Password Error.)");
         }
 
@@ -209,6 +193,20 @@ public class UserController {
         }
     }
 
+    /**
+     * 记录账户密码输入的错误次数
+     * @param response
+     * @param code 错误次数
+     * @param account 用户账号
+     * @param ip 用户ip
+     */
+    public static void recordCode(HttpServletResponse response,int code,String account,String ip){
+        if(code>=0){
+            code+=1;
+        }
+        CookieUtils.setCookie(response,account+Constants.VERIF_CODE,String.valueOf(code),0);
+        JedisUtil.setJson(ip+account,String.valueOf(code),60);
+    }
 
 }
 
